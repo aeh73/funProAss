@@ -1,5 +1,6 @@
 package funcProgAssi;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,13 +30,25 @@ import java.util.stream.Stream;
      	- improve the toString method to display the student register in a user-friendly format, such as a table.(needed) - check apache commons text
      	- implement a database to store the register instead of a concurrent map(would be nice) - might end up querying using sql rather than functional programming paradigm
      	- add tests for each part of the system(needed)
+     	
+    RECHECK COMMENTS AS CODE IS CHANGING
+    REMOVE REDUNDANT COMMENTS
  */
 
 public class StudentRegister {
 	// Use a concurrent hash map to store students to ensure thread safety i.e. multiple users/threads can access or modify the system effectively.
-	private final ConcurrentHashMap<Integer, Student> register = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<Integer, Student> register = new ConcurrentHashMap<>();
+	
+	public StudentRegister(ConcurrentHashMap<Integer, Student> register) {
+        this.register = register;
+    }
 	
 	
+	public StudentRegister() {
+		this.register = register;
+	}
+
+
 	// a) Method to add a new student to the registry
 	/* 1. The Optional class is used to handle the null values of the student object - using an optional type represents the presence or absence of a value 
 	 * which is a safer way to handle nulls as we force the code to handle the absense of a value explicitly. 
@@ -63,14 +76,14 @@ public class StudentRegister {
     // b) Method to remove a student from the registry
     /* This method uses the 'computeIfPresent' method of ConcurrentHashMap which takes an int (the key) as an argument and computes its value based on the hash, 
      * if the key exists we remove the key and its associated value by passing a lambda expression that returns null effectively removing the key-value pair*/
-    public void removeStudent(int id) {
+    public Student removeStudent(int id) {
     	 Optional<Student> student = Optional.ofNullable(register.get(id));
     	 student.orElseThrow(() -> new IllegalArgumentException("Student not found.."));
-    	 register.computeIfPresent(id, (key, value) -> null);
+    	 return register.remove(id);
     	
     }
     
-    // Method to get a stream of all students in the registry
+    // Method to get a stream of all students in the registry - returns a list of student objects
     public Stream<Student> getAllStudents() {
         return register.values().stream();
     }
@@ -86,7 +99,7 @@ public class StudentRegister {
     public List<Student> getStudentByName(String name) {
        	return register.values().stream()
         			.filter(student -> student.getName().equalsIgnoreCase(name))
-        			.collect(Collectors.toList());
+        			.collect(Collectors.toList()); 			
     }
     /*
 	 * Same as getStudentByName except it returns a list of students starting with the given string/character
@@ -131,42 +144,93 @@ public class StudentRegister {
                 .collect(Collectors.toList());
     }
     
+    /*Had to create a getRegister method as alot of my methods are void and have no return types, had issues using methods on primitives*/
+    public ConcurrentHashMap<Integer, Student> getRegister() {
+        return register;
+    }
     public static void main(String[] args) {
-    	StudentRegister register = new StudentRegister();
-        Student student1 = new Student(1, "John Doe", "Computer Science", "Software Engineering", 85);
-        register.addStudent(student1);
-        Student student2 = new Student(2, "Jane Doe", "Computer Science", "Artificial Intelligence", 90);
-        register.addStudent(student2);
-        Student student3 = new Student(3, "Jim Smith", "Computer Science", "Data Science", 95);
-        register.addStudent(student3);
-        Student student4 = new Student(4, "Jenny Johnson", "Computer Science", "Software Engineering", 80);
-        register.addStudent(student4);
-        Student student5 = new Student(5, "Jim Brown", "Computer Science", "Artificial Intelligence", 85);
-        register.addStudent(student5);
-        Student student6 = new Student(6, "Jane Lee", "Computer Science", "Data Science", 90);
-        register.addStudent(student6);
-        Student student7 = new Student(7, "Jim Clark", "Computer Science", "Software Engineering", 95);
-        register.addStudent(student7);
-        Student student8 = new Student(8, "Jenny Martinez", "Computer Science", "Artificial Intelligence", 80);
-        register.addStudent(student8);
-        Student student9 = new Student(9, "Jim Wilson", "Computer Science", "Data Science", 85);
-        register.addStudent(student9);
-        Student student10 = new Student(10, "Jane Phillips", "Computer Science", "Software Engineering", 90);
-        register.addStudent(student10);
-        Student student11 = new Student(11, "John Doe2", "Engineering", "Mechanical Engineering", 75);
-        register.addStudent(student11);
-        Student student12 = new Student(12, "Jane Doe2", "Engineering", "Methods in Mechanics", 95);
-        register.addStudent(student12);
-        Student student13 = new Student(13, "Jim Smith2", "Engineering", "Engineering Design", 70);
-        register.addStudent(student13);
-        Student student14 = new Student(14, "Jenny Johnson2", "Engineering", "Engineering Design", 95);
-        register.addStudent(student14);
-        Student student15 = new Student(15, "Jim Brown2", "Engineering", "Methods in Mechanics", 90);
-        register.addStudent(student15);
+//    	StudentRegister register = new StudentRegister();
+//        Student student1 = new Student(1, "John Doe", "Computer Science", "Software Engineering", 85);
+//        register.addStudent(student1);
+//        Student student2 = new Student(2, "Jane Doe", "Computer Science", "Artificial Intelligence", 90);
+//        register.addStudent(student2);
+//        Student student3 = new Student(3, "Jim Smith", "Computer Science", "Data Science", 95);
+//        register.addStudent(student3);
+//        Student student4 = new Student(4, "Jenny Johnson", "Computer Science", "Software Engineering", 80);
+//        register.addStudent(student4);
+//        Student student5 = new Student(5, "Jim Brown", "Computer Science", "Artificial Intelligence", 85);
+//        register.addStudent(student5);
+//        Student student6 = new Student(6, "Jane Lee", "Computer Science", "Data Science", 90);
+//        register.addStudent(student6);
+//        Student student7 = new Student(7, "Jim Clark", "Computer Science", "Software Engineering", 95);
+//        register.addStudent(student7);
+//        Student student8 = new Student(8, "Jenny Martinez", "Computer Science", "Artificial Intelligence", 80);
+//        register.addStudent(student8);
+//        Student student9 = new Student(9, "Jim Wilson", "Computer Science", "Data Science", 85);
+//        register.addStudent(student9);
+//        Student student10 = new Student(10, "Jane Phillips", "Computer Science", "Software Engineering", 90);
+//        register.addStudent(student10);
+//        Student student11 = new Student(11, "John Doe2", "Engineering", "Mechanical Engineering", 75);
+//        register.addStudent(student11);
+//        Student student12 = new Student(12, "Jane Doe2", "Engineering", "Methods in Mechanics", 95);
+//        register.addStudent(student12);
+//        Student student13 = new Student(13, "Jim Smith2", "Engineering", "Engineering Design", 70);
+//        register.addStudent(student13);
+//        Student student14 = new Student(14, "Jenny Johnson2", "Engineering", "Engineering Design", 95);
+//        register.addStudent(student14);
+//        Student student15 = new Student(15, "Jim Brown2", "Engineering", "Methods in Mechanics", 90);
+//        register.addStudent(student15);
+    	
+//    	ConcurrentHashMap<Integer, Student> register = new ConcurrentHashMap<>();
+//    	StudentRegisterFileHandler fileHandler = new StudentRegisterFileHandler();
+//    	try {
+//			fileHandler.load("student_register.txt");
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//    	
+//    	/*Create a new StudentRegister object using the loaded register*/
+//    	
+//    	StudentRegister studentRegister = new StudentRegister(register);
+    	
+    	ConcurrentHashMap<Integer, Student> register = new ConcurrentHashMap<Integer, Student>();
+		try {
+			register = new StudentRegisterFileHandler().load("student_register.txt");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	StudentRegister studentRegister = new StudentRegister(register);
         
+        /*Get a list of all students*/
+        //List<Student> studentList = studentRegister.getAllStudents().collect(Collectors.toList());
+        //System.out.println(studentList);
         
-        List<Student> studentList = register.getAllStudents().collect(Collectors.toList());
-        System.out.println(studentList);
+        /*Get a list of student with the given name*/
+        //List<Student> studentList = studentRegister.getStudentByName("Frank Lee");
+        //System.out.println(studentList);
+        
+        /*Get a list of all students starting with a given character or characters*/
+        //List<Student> studentList = studentRegister.getStudentsByNameStartingWith("J");
+        //System.out.println(studentList);
+        
+        /*Get a list of all students with a given ID - will always return 1..*/
+        //List<Student> studentList = studentRegister.getStudentById(3);
+        //System.out.println(studentList);
+        
+        /*Get a list of all students on a given course*/
+        //List<Student> studentList = studentRegister.getStudentByCourse("Computer Science");
+        //System.out.println(studentList);
+        
+        /*Get a list of all students on a given module*/
+        //List<Student> studentList = studentRegister.getStudentByModule("Data Structures");
+        //System.out.println(studentList);
+        
+        /*Get a list of all students on a given module and sort by marks*/
+        //List<Student> studentList = studentRegister.getStudentsByModuleAndSortByMarksDescending("Data Structures");
+        //System.out.println(studentList);
+        
        
 
         
