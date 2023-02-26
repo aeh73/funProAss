@@ -39,15 +39,18 @@ public class StudentRegister {
 	// Use a concurrent hash map to store students to ensure thread safety i.e. multiple users/threads can access or modify the system effectively.
 	private ConcurrentHashMap<Integer, Student> register = new ConcurrentHashMap<>();
 	
-	public StudentRegister(ConcurrentHashMap<Integer, Student> register) {
-        this.register = register;
-    }
+	/*Had to create a getRegister method as alot of my methods are void and have no return types, had issues using methods on primitives*/
+   	 public ConcurrentHashMap<Integer, Student> getRegister() {
+        	return register;
+    	}
 	
+	public StudentRegister(ConcurrentHashMap<Integer, Student> register) {
+        	this.register = register;
+    	}
 	
 	public StudentRegister() {
 		this.register = register;
 	}
-
 
 	// a) Method to add a new student to the registry
 	/* 1. The Optional class is used to handle the null values of the student object - using an optional type represents the presence or absence of a value 
@@ -144,10 +147,6 @@ public class StudentRegister {
                 .collect(Collectors.toList());
     }
     
-    /*Had to create a getRegister method as alot of my methods are void and have no return types, had issues using methods on primitives*/
-    public ConcurrentHashMap<Integer, Student> getRegister() {
-        return register;
-    }
     public static void main(String[] args) {
 //    	StudentRegister register = new StudentRegister();
 //        Student student1 = new Student(1, "John Doe", "Computer Science", "Software Engineering", 85);
