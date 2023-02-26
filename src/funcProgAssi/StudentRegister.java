@@ -37,21 +37,48 @@ import java.util.stream.Stream;
 
 public class StudentRegister {
 	// Use a concurrent hash map to store students to ensure thread safety i.e. multiple users/threads can access or modify the system effectively.
-	private ConcurrentHashMap<Integer, Student> register = new ConcurrentHashMap<>();
+	protected static ConcurrentHashMap<Integer, Student> register = new ConcurrentHashMap<>();
+	protected static final String FILENAME = "student_register.txt";
+	protected static StudentRegisterFileHandler fileHandler;
 	
 	/*Had to create a getRegister method as alot of my methods are void and have no return types, had issues using methods on primitives*/
-   	 public ConcurrentHashMap<Integer, Student> getRegister() {
-        	return register;
-    	}
-	
+//    public static ConcurrentHashMap<Integer, Student> getRegister() {
+//        return register;
+//    }
+    /*Method to create studentregister objects with no arguments - used in testing*/
+//    public StudentRegister() { 	
+//            this.register = register;     
+//	}	
+    
+	/*constructor to be used for file I/O*/
 	public StudentRegister(ConcurrentHashMap<Integer, Student> register) {
-        	this.register = register;
-    	}
+        this.register = register;
+    }
 	
-	public StudentRegister() {
-		this.register = register;
+	public void saveFile() {
+		//ADD the save method after a student has been added so when next
+        //query is loaded the new student will be part of it
+        try {
+			StudentRegisterFileHandler.save(register);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+	
+	public static void loadFile() {
+		fileHandler = new StudentRegisterFileHandler();
+        try {
+            register = fileHandler.load(FILENAME); 
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //return register;
 	}
 
+	/*String instance of the filename - change filename in 1 place to maintain code*/
+	//private static final String FILENAME = "student_register.txt";
 	// a) Method to add a new student to the registry
 	/* 1. The Optional class is used to handle the null values of the student object - using an optional type represents the presence or absence of a value 
 	 * which is a safer way to handle nulls as we force the code to handle the absense of a value explicitly. 
@@ -63,9 +90,13 @@ public class StudentRegister {
 	 * IF both conditions are met then the new student is added to the register map using the put method with its ID as the key and the student object as the value.
 	 * NOTE: this method allows multiple students with the same first and last name but not same ID.*/
     public void addStudent(Student student) {
-    	Optional.ofNullable(student)
-    			.filter(s -> s.getId() > 0 && s.getName() != null && !s.getName().isEmpty())
-    			.orElseThrow(() -> new IllegalArgumentException("Invalid ID or Name is null.."));
+    	 Optional.ofNullable(student)
+         		.filter(s -> s.getId() > 0 
+         			 && s.getName() != null && !s.getName().isEmpty() 
+                     && s.getCourse() != null && !s.getCourse().isEmpty() 
+                     && s.getModule() != null && !s.getModule().isEmpty() 
+                     && s.getMarks() >= 0 && s.getMarks() <= 100)
+         		.orElseThrow(() -> new IllegalArgumentException("Invalid student data.."));
     	register.entrySet()
     			.stream()
     			.filter(entry -> entry.getKey() == student.getId())
@@ -74,15 +105,18 @@ public class StudentRegister {
     				throw new IllegalStateException("Student ID already in use..");
     			});
         register.put(student.getId(), student);
+        saveFile();
     }
 	
     // b) Method to remove a student from the registry
     /* This method uses the 'computeIfPresent' method of ConcurrentHashMap which takes an int (the key) as an argument and computes its value based on the hash, 
      * if the key exists we remove the key and its associated value by passing a lambda expression that returns null effectively removing the key-value pair*/
     public Student removeStudent(int id) {
-    	 Optional<Student> student = Optional.ofNullable(register.get(id));
-    	 student.orElseThrow(() -> new IllegalArgumentException("Student not found.."));
-    	 return register.remove(id);
+    	Optional<Student> student = Optional.ofNullable(register.get(id));
+        student.orElseThrow(() -> new IllegalArgumentException("Student not found.."));
+        register.remove(id);
+        saveFile();
+        return student.get();
     	
     }
     
@@ -114,12 +148,13 @@ public class StudentRegister {
     }
     
     /*
-	 * Similar to the getStudentByName method except it takes an int as an argument and returns a list of student objects that match the given int
+	 * Similar to the getStudentByName method except it takes an int as an argument and returns a student object that match the given int
 	*/
-    public List<Student> getStudentById(int id) {
+    public Student getStudentById(int id) {
     	return register.values().stream()
-    			.filter(student -> student.getId() == id)
-    			.collect(Collectors.toList());
+                .filter(student -> student.getId() == id)
+                .findFirst()
+                .orElse(null);
     }
     
     /*
@@ -146,6 +181,7 @@ public class StudentRegister {
                 .sorted((student1, student2) -> student2.getMarks() - student1.getMarks())
                 .collect(Collectors.toList());
     }
+    
     
     public static void main(String[] args) {
 //    	StudentRegister register = new StudentRegister();
@@ -188,23 +224,49 @@ public class StudentRegister {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
+    	
+    	/*Create a new StudentRegister object using the loaded register*/
+    	
+    	//StudentRegister studentRegister = new StudentRegister(register);
+    	
+//    	ConcurrentHashMap<Integer, Student>
 //    	
-//    	/*Create a new StudentRegister object using the loaded register*/
-//    	
+//    	register = new ConcurrentHashMap<Integer, Student>();
+//		try {
+//			StudentRegisterFileHandler studentRegisterFileHandler = new StudentRegisterFileHandler();
+//			studentRegisterFileHandler.load(FILENAME);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 //    	StudentRegister studentRegister = new StudentRegister(register);
     	
-    	ConcurrentHashMap<Integer, Student> register = new ConcurrentHashMap<Integer, Student>();
-		try {
-			register = new StudentRegisterFileHandler().load("student_register.txt");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    	StudentRegister studentRegister = new StudentRegister(register);
-        
+    	
+//    	ConcurrentHashMap<Integer, Student> register = new ConcurrentHashMap<Integer, Student>();
+//		try {
+//			register = new StudentRegisterFileHandler().load(FILENAME);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//    	StudentRegister studentRegister = new StudentRegister(register);
+//        
         /*Get a list of all students*/
-        //List<Student> studentList = studentRegister.getAllStudents().collect(Collectors.toList());
-        //System.out.println(studentList);
+    	loadFile();
+    	StudentRegister studentRegister = new StudentRegister(register);
+    	//Student student15 = new Student(54, "Jim Brown9", "Engineering", "Methods in Mechanics", 20);
+        //studentRegister.addStudent(student15);
+    	//List<Student> studentList2 = studentRegister.getAllStudents().collect(Collectors.toList());
+        //System.out.println(studentList2);
+        
+        Student student55 = new Student(55,"Jim Douglas", "Engineering", "Methods in Mechanics", 81);
+        //studentRegister.addStudent(student55);
+        
+        studentRegister.removeStudent(55);
+        List<Student> studentList = studentRegister.getAllStudents().collect(Collectors.toList());
+        System.out.println(studentList);
+        
+        
         
         /*Get a list of student with the given name*/
         //List<Student> studentList = studentRegister.getStudentByName("Frank Lee");
@@ -215,8 +277,9 @@ public class StudentRegister {
         //System.out.println(studentList);
         
         /*Get a list of all students with a given ID - will always return 1..*/
-        //List<Student> studentList = studentRegister.getStudentById(3);
-        //System.out.println(studentList);
+        //Student studentList3 = studentRegister.getStudentById(3);
+        //System.out.println(studentList3);
+        //System.out.println(studentRegister.getStudentById(4));
         
         /*Get a list of all students on a given course*/
         //List<Student> studentList = studentRegister.getStudentByCourse("Computer Science");
@@ -231,7 +294,7 @@ public class StudentRegister {
         //System.out.println(studentList);
         
        
-
+      
         
 	}
 }

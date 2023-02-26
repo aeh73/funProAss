@@ -11,12 +11,12 @@ import java.util.stream.Collectors;
 
 public class StudentRegisterTest {
 	//Initialising register for testing
-	private StudentRegister register;
+	//private StudentRegister register;
 	
-	//Creating the register beforeeach test
+	//Creating an empty register beforeeach test
     @BeforeEach
     public void setup() {
-        register = new StudentRegister(null);
+        //StudentRegister register = new StudentRegister();
     }
     
     /*The ValidConstructor test method checks if a student object can be created successfully with valid constructor parameters. 
@@ -27,12 +27,14 @@ public class StudentRegisterTest {
     	Student student = new Student(1, "John", "Computer Science", "Programming", 85);
     	Student student2 = new Student(2, "Jane", "Mathematics", "Calculus", 95);
     	//Create a new studentregister object
-        StudentRegister register = new StudentRegister();
+        //StudentRegister register = new StudentRegister(StudentRegister.getRegister());
+    	ConcurrentHashMap<Integer, Student> register = new ConcurrentHashMap<>();
+    	StudentRegister studentRegister = new StudentRegister(null);
         //Add the 2 students
-        register.addStudent(student);
-        register.addStudent(student2);
+        studentRegister.addStudent(student);
+        studentRegister.addStudent(student2);
         //Get the student names as a list
-        List<String> studentNames = register.getRegister().values().stream()
+        List<String> studentNames = studentRegister.register.values().stream()
                 .map(Student::getName)
                 .collect(Collectors.toList());
         //Assert that the list contains the expected student names
@@ -48,7 +50,7 @@ public class StudentRegisterTest {
 	*/
     @Test
     public void testInvalidConstructor() {
-    	 StudentRegister register = new StudentRegister();
+    	  StudentRegister register = new StudentRegister(null);
     	  assertThrows(IllegalArgumentException.class, () -> register.addStudent(new Student(0, "Jane Doe", "Mathematics", "Calculus", 95)));
     	  assertThrows(IllegalArgumentException.class, () -> register.addStudent(new Student(2, null, "Physics", "Mechanics", 80)));
     }
@@ -61,9 +63,9 @@ public class StudentRegisterTest {
 	 */
     @Test
     public void testDuplicateStudents() {
+    	StudentRegister register = new StudentRegister(null);
     	Student student1 = new Student(1, "John Doe", "Computer Science", "Programming", 85);
         Student student2 = new Student(1, "Jane Doe", "Mathematics", "Calculus", 95);
-        StudentRegister register = new StudentRegister();
         assertDoesNotThrow(() -> register.addStudent(student1));
         IllegalStateException e = assertThrows(IllegalStateException.class, () -> register.addStudent(student2));
         assertEquals("Student ID already in use..", e.getMessage());
@@ -75,7 +77,7 @@ public class StudentRegisterTest {
     @Test
     public void testRemoveStudent() {
         ConcurrentHashMap<Integer, Student> register = new ConcurrentHashMap<>();
-        StudentRegister studentRegister = new StudentRegister(register);
+        StudentRegister studentRegister = new StudentRegister(null);
 
         Student student1 = new Student(1, "John Doe", "Computer Science", "Programming 101", 80);
         Student student2 = new Student(2, "Jane Doe", "Computer Science", "Programming 201", 90);
