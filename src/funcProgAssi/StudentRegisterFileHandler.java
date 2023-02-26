@@ -19,7 +19,7 @@ public class StudentRegisterFileHandler {
     public ConcurrentHashMap<Integer, Student> load(String filename) throws IOException {
         try (Stream<String> stream = Files.lines(Paths.get(filename))) {
             ConcurrentHashMap<Integer, Student> register = stream
-                    .map(line -> line.split(","))
+                    .map(line -> line.split(DELIMITER))
                     .collect(
                             ConcurrentHashMap::new,
                             (map, tokens) -> {
