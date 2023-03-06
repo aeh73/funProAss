@@ -53,3 +53,6 @@
 53,Jim Brown3,Engineering,Methods in Mechanics,90
 54,Jim Douglas,Engineering,Methods in Mechanics,82
 55,Jim Douglas,Engineering,Methods in Mechanics,81
+56,Jim Brown22,Engineering,Methods in Mechanics,90
+57,Jim Douglas,Engineering,Methods in Mechanics,81
+58,Jim Douglas,Engineering,Methods in Mechanics,81
