@@ -1,4 +1,4 @@
-package funcProgAssi;
+package funProAss;
 
 import java.io.IOException;
 import java.util.List;
@@ -30,6 +30,7 @@ import java.util.stream.Stream;
      	- improve the toString method to display the student register in a user-friendly format, such as a table.(needed) - check apache commons text
      	- implement a database to store the register instead of a concurrent map(would be nice) - might end up querying using sql rather than functional programming paradigm
      	- add tests for each part of the system(needed)
+     	- File watcher for textfile modifications
      	
     RECHECK COMMENTS AS CODE IS CHANGING
     REMOVE REDUNDANT COMMENTS
@@ -38,6 +39,7 @@ import java.util.stream.Stream;
 public class StudentRegister {
 	// Use a concurrent hash map to store students to ensure thread safety i.e. multiple users/threads can access or modify the system effectively.
 	protected static ConcurrentHashMap<Integer, Student> register = new ConcurrentHashMap<>();
+	protected static StudentRegister studentRegister = new StudentRegister(register);
 	protected static final String FILENAME = "student_register.txt";
 	protected static StudentRegisterFileHandler fileHandler;
 	
@@ -52,7 +54,7 @@ public class StudentRegister {
     
 	/*constructor to be used for file I/O*/
 	public StudentRegister(ConcurrentHashMap<Integer, Student> register) {
-        this.register = register;
+        StudentRegister.register = register;
     }
 	
 	public void saveFile() {
@@ -120,10 +122,18 @@ public class StudentRegister {
     	
     }
     
-    // Method to get a stream of all students in the registry - returns a list of student objects
+    // Method to get a stream of all students in the register - returns a list of student objects
     public Stream<Student> getAllStudents() {
         return register.values().stream();
+        		
+        					
     }
+    //Method to print all of the students in the register
+    public void printAllStudents() {
+    	register.values().stream().forEach(student -> System.out.println(student));
+    }
+    
+    
 
     //c)	Query existing students by their name, ID, course, and module.
 	/*
@@ -138,6 +148,17 @@ public class StudentRegister {
         			.filter(student -> student.getName().equalsIgnoreCase(name))
         			.collect(Collectors.toList()); 			
     }
+    
+
+    
+    public void getStudentsByName3(String name) {
+    	List<Student> matchingStudents = 
+    			register.values().stream()
+    			.filter(student -> student.getName().equalsIgnoreCase(name))
+    	        .collect(Collectors.toList());
+    	matchingStudents.forEach(student -> System.out.println(student));
+    }
+    
     /*
 	 * Same as getStudentByName except it returns a list of students starting with the given string/character
 	*/
@@ -253,19 +274,27 @@ public class StudentRegister {
 //        
         /*Get a list of all students*/
     	loadFile();
-    	StudentRegister studentRegister = new StudentRegister(register);
-    	//Student student15 = new Student(54, "Jim Brown9", "Engineering", "Methods in Mechanics", 20);
-        //studentRegister.addStudent(student15);
+    	//StudentRegister studentRegister = new StudentRegister(register);
+    	//studentRegister.printAllStudents();
+  
     	//List<Student> studentList2 = studentRegister.getAllStudents().collect(Collectors.toList());
-        //System.out.println(studentList2);
+       // System.out.println(studentList2);
         
-        Student student55 = new Student(55,"Jim Douglas", "Engineering", "Methods in Mechanics", 81);
+        //Student student55 = new Student(55,"Jim Douglas", "Engineering", "Methods in Mechanics", 81);
         //studentRegister.addStudent(student55);
         
-        studentRegister.removeStudent(55);
-        List<Student> studentList = studentRegister.getAllStudents().collect(Collectors.toList());
-        System.out.println(studentList);
+        //studentRegister.removeStudent(55);
+        //List<Student> studentList = studentRegister.getAllStudents().collect(Collectors.toList());
+        //System.out.println(studentList);
+    	//studentRegister.printAllStudents();
+    	
+    	//Student student9095 = new Student(60,"Jim Douglas", "Engineering", "Methods in Mechanics", 81);
+        //studentRegister.addStudent(student9095);
+    	//studentRegister.removeStudent(60);
+    	studentRegister.getStudentById(51);
         
+    	
+    	studentRegister.printAllStudents();
         
         
         /*Get a list of student with the given name*/

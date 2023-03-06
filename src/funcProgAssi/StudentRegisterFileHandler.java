@@ -1,4 +1,4 @@
-package funcProgAssi;
+package funProAss;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -55,37 +55,17 @@ public class StudentRegisterFileHandler {
     	/*Had issues re-putting the whole hashmap back into the textfile on saving - although the addStudent method had exception handling for
     	 * ID's already in use, the save method will not be using it and will just save the whole hashmap again*/
         // Read the existing content of the file into memory
-        List<String> existingLines = Files.readAllLines(Paths.get(FILENAME));
+       
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILENAME, true))) {
+         /*(BufferedWriter writer = new BufferedWriter(new FileWriter(FILENAME, true)))*/ 
             // Filter out the student records that are already present in the file
             Stream<String> newLines = register.values().stream()
                     .map(student -> String.format("%d,%s,%s,%s,%d", 
                             student.getId(), student.getName(), student.getCourse(), 
-                            student.getModule(), student.getMarks()))
-                    .filter(line -> !existingLines.contains(line));
-
-            // Append the new lines to the file
-            newLines.forEach(line -> {
-                try {
-                    writer.write(line);
-                    writer.newLine();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-        }
+                            student.getModule(), student.getMarks()));
+            
+                    Files.write(Paths.get(FILENAME), newLines.toList());  
     }
     
     
-//    public static void save(Map<Integer, Student> students) throws IOException {
-//        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILENAME))) {
-//            for (Student student : students.values()) {
-//                writer.write(String.format("%d%s%s%s%s%d%n",
-//                    student.getId(), DELIMITER, student.getName(), DELIMITER,
-//                    student.getCourse(), DELIMITER, student.getModule(),
-//                    student.getMarks()));
-//            }
-//        }
-//    }
 }
