@@ -1,0 +1,66 @@
+.gradient-background{
+	/*-fx-background-color: linear-gradient(from 25% 25% to 100% 100%, #2ad138, #a6e3ab);*/
+	/*-fx-background: linear-gradient(to left, #2ad138 25%, #a6e3ab);*/
+	-fx-background-color: radial-gradient(center 50% 50% , radius 200% , #a6e3ab, #009e0d);
+}
+
+.line-color{
+	-fx-background-color: #a6e3ab;
+}
+
+.line-color-container{
+	-fx-background-color: #009e0d;
+}
+
+.input-container{
+	-fx-background-color: #a6e3ab;
+	-fx-background-radius:10;
+	-fx-border-color:#009e0d;
+	-fx-border-width:3;
+	-fx-border-radius:10;
+
+}
+
+.output-container{
+-fx-background-color: #a6e3ab;
+	-fx-background-radius:10;
+	-fx-border-color:#009e0d;
+	-fx-border-width:3;
+	-fx-border-radius:10;
+}
+.icon{
+    -fx-background-color: #a6e3ab;
+    /*-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 10, 0.5, 0, 0);*/
+
+}
+.icon:hover{
+-fx-cursor: hand;
+-fx-effect: dropshadow(gaussian, #009e0d, 5, 0, 0, 0);
+    -fx-transition-duration: 0.5s;
+
+}
+
+.icon-red{
+-fx-background-color: #a6e3ab;
+}
+.icon-red:hover{
+-fx-cursor: hand;
+-fx-effect: dropshadow(gaussian, red, 5, 0, 0, 0);
+    -fx-transition-duration: 0.5s;
+}
+
+.inputFields{
+-fx-border-radius: 5;
+}
+.inputFields:hover{
+-fx-effect: dropshadow(gaussian, #009e0d, 5, 0, 0, 0);
+    -fx-transition-duration: 0.5s;
+/*-fx-border-color:#009e0d;
+-fx-border-width:1px 1px 1px 1px;
+-fx-border-radius: 5;*/
+}
+.inputFields:focused{
+-fx-border-color:#009e0d;
+-fx-border-width:1px 1px 1px 1px;
+-fx-border-radius: 5;
+}
