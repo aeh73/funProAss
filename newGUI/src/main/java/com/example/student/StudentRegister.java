@@ -3,6 +3,7 @@ package com.example.student;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -12,48 +13,33 @@ import java.util.stream.Stream;
 
 public class StudentRegister {
 
-    private static ConcurrentHashMap<Integer, Student> register = new ConcurrentHashMap<>();
-    public static StudentRegister studentRegister = new StudentRegister(register);
+    private final ConcurrentHashMap<Integer, Student> register = new ConcurrentHashMap<>();
     private static final String FILENAME = "student_register.txt";
     private static StudentRegisterFileHandler fileHandler;
 
-
-    public static ConcurrentHashMap<Integer, Student> getRegister() {
-        return register;
-    }
-
-    public static void setRegister(ConcurrentHashMap<Integer, Student> register) {
-        StudentRegister.register = register;
-    }
-    /*Method to create studentregister objects with no arguments - used in testing*/
-//    public StudentRegister() {
-//            this.register = register;
-//	}
-
     /*constructor to be used for file I/O*/
-    public StudentRegister(ConcurrentHashMap<Integer, Student> register) {
-        StudentRegister.register = register;
+    public StudentRegister() {
     }
+
     public boolean isEmpty() {
         return register.isEmpty();
     }
 
+    public ConcurrentHashMap<Integer, Student> getRegister() {
+        return new ConcurrentHashMap<>(register);
+    }
 
     public void saveFile(Path filePath) throws IOException {
         StudentRegisterFileHandler handler = new StudentRegisterFileHandler();
         handler.save(register, filePath);
     }
 
-//    public static void loadFile() {
-//        fileHandler = new StudentRegisterFileHandler();
-//        try {
-//            register = fileHandler.load(FILENAME);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        //return register;
-//    }
-
+    public void load(Path filePath) throws IOException {
+        StudentRegisterFileHandler handler = new StudentRegisterFileHandler();
+        ConcurrentHashMap<Integer, Student> newRegister = handler.load(filePath);
+        this.register.clear();
+        this.register.putAll(newRegister);
+    }
 
     public void addStudent(Student student) {
         Optional.ofNullable(student)
@@ -93,6 +79,30 @@ public class StudentRegister {
                 .filter(predicate)
                 .collect(Collectors.toList());
     }
+    public List<Student> getSortedByMarksAsc() {
+        return register.values().stream()
+                .sorted(Comparator.comparingInt(Student::getMarks))
+                .collect(Collectors.toList());
+    }
+
+    public List<Student> getSortedByMarksDesc() {
+        return register.values().stream()
+                .sorted(Comparator.comparingInt(Student::getMarks).reversed())
+                .collect(Collectors.toList());
+    }
+
+    public List<Student> getSortedByNameAsc() {
+        return register.values().stream()
+                .sorted(Comparator.comparing(Student::getName))
+                .collect(Collectors.toList());
+    }
+
+    public List<Student> getSortedByNameDesc() {
+        return register.values().stream()
+                .sorted(Comparator.comparing(Student::getName).reversed())
+                .collect(Collectors.toList());
+    }
+
 
     public Predicate<Student> getIdPredicate(String idText) {
         return s -> idText.isEmpty() || Integer.toString(s.getId()).equals(idText);
@@ -105,15 +115,9 @@ public class StudentRegister {
     public Predicate<Student> getCoursePredicate(String courseText) {
         return s -> courseText.isEmpty() || s.getCourse().toLowerCase().startsWith(courseText);
     }
-    public Predicate<Student> getCbCoursePredicate(String courseText) {
-        return s -> courseText.isEmpty() || s.getCourse().toLowerCase().equals(courseText);
-    }
 
     public Predicate<Student> getModulePredicate(String moduleText) {
         return s -> moduleText.isEmpty() || s.getModule().toLowerCase().startsWith(moduleText);
-    }
-    public Predicate<Student> getCbModulePredicate(String moduleText) {
-        return s -> moduleText.isEmpty() || s.getModule().toLowerCase().equals(moduleText);
     }
 
     public Predicate<Student> getMarksPredicate(String marksText) {
@@ -130,29 +134,12 @@ public class StudentRegister {
         return predicates.stream().reduce(Predicate::and).orElse(student -> true);
     }
 
-    public Predicate<Student> getCourseModulePredicate(String courseText, String moduleText) {
-        List<Predicate<Student>> predicates = new ArrayList<>();
-        predicates.add(getCoursePredicate(courseText));
-        predicates.add(getModulePredicate(moduleText));
-        return predicates.stream().reduce(Predicate::and).orElse(student -> true);
-    }
-
-    public void getStudentsByModuleAndSortByMarksDescending(String module) {
-        register.values().stream()
-                .filter(student -> student.getModule().equalsIgnoreCase(module))
-                .sorted((student1, student2) -> student2.getMarks() - student1.getMarks())
-                .forEach(System.out::println);
+    public double calculateAverageMark() {
+        return register.values().stream()
+                .mapToDouble(Student::getMarks) // map each student to its marks
+                .average() // calculate the average
+                .orElse(0.0); // return 0.0 if there are no students
     }
 
 
-    public void getModuleAverageMark(String module) {
-        double averageMark = register.values().stream()
-                .filter(student -> student.getModule().contains(module))
-                .mapToDouble(student -> student.getMarks())
-                .average()
-                .orElse(Double.NaN);
-
-        //System.out.println("The average mark for " + module + " is: " + averageMark);
-        System.out.printf("The average mark for %s is: %.2f%%\n", module, averageMark);
-    }
 }

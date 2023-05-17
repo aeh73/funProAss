@@ -68,8 +68,15 @@ public final class Student {
     }
 
     public static String toString2(Student student) {
-        return String.format("%d%s%s%s%d", student.getId(), StudentRegisterFileHandler.DELIMITER, student.getName(), StudentRegisterFileHandler.DELIMITER,
-                student.getCourse(), StudentRegisterFileHandler.DELIMITER, student.getModule(), StudentRegisterFileHandler.DELIMITER,
+        return String.format("%d%s%s%s%s%s%s%s%d",
+                student.getId(),
+                StudentRegisterFileHandler.DELIMITER,
+                student.getName(),
+                StudentRegisterFileHandler.DELIMITER,
+                student.getCourse(),
+                StudentRegisterFileHandler.DELIMITER,
+                student.getModule(),
+                StudentRegisterFileHandler.DELIMITER,
                 student.getMarks());
     }
 }

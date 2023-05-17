@@ -51,41 +51,7 @@ public class StudentRegisterFileHandler {
                 .map(student -> String.format("%d,%s,%s,%s,%d",
                         student.getId(), student.getName(), student.getCourse(),
                         student.getModule(), student.getMarks()));
-
-        // Pass StandardOpenOption.APPEND to append to the file instead of overwriting it
-        //Files.write(filePath, newLines.toList(), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-        // Pass StandardOpenOption.TRUNCATE_EXISTING to overwrite to the file instead of appending
         Files.write(filePath, newLines.toList(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
-//    public static void save(ConcurrentHashMap<Integer, Student> register) throws IOException {
-//
-//
-//        Stream<String> newLines = register.values().stream()
-//                .map(student -> String.format("%d,%s,%s,%s,%d",
-//                        student.getId(), student.getName(), student.getCourse(),
-//                        student.getModule(), student.getMarks()));
-//
-//        Files.write(Paths.get(FILENAME), newLines.toList());
-//    }
 
-//    public ConcurrentHashMap<Integer, Student> load(String fileName) throws IOException {
-//        try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
-//            ConcurrentHashMap<Integer, Student> register = stream
-//                    .map(line -> line.split(DELIMITER))
-//                    .collect(
-//                            ConcurrentHashMap::new,
-//                            (map, tokens) -> {
-//                                int id = Integer.parseInt(tokens[0].trim());
-//                                String name = tokens[1].trim();
-//                                String course = tokens[2].trim();
-//                                String module = tokens[3].trim();
-//                                int marks = Integer.parseInt(tokens[4].trim());
-//                                Student student = new Student(id, name, course, module, marks);
-//                                map.put(id, student);
-//                            },
-//                            ConcurrentHashMap::putAll
-//                    );
-//            return register;
-//        }
-//    }
 }
