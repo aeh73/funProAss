@@ -1,10 +1,7 @@
 package com.example.student;
 
-import javafx.stage.FileChooser;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.FileNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -13,7 +10,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 public class StudentRegisterFileHandler {
-    //private static final String FILENAME = "student_register.txt";
     private static String filename;
     public static final String DELIMITER = ",";
 
@@ -46,7 +42,6 @@ public class StudentRegisterFileHandler {
                 filePath = Paths.get("new_student_register.txt");
             }
         }
-
         Stream<String> newLines = register.values().stream()
                 .map(student -> String.format("%d,%s,%s,%s,%d",
                         student.getId(), student.getName(), student.getCourse(),

@@ -1,6 +1,7 @@
 package com.example.newgui;
 
 import com.example.student.Student;
+import com.example.student.StudentBenchmarkTest;
 import com.example.student.StudentRegister;
 import com.example.student.StudentRegisterFileHandler;
 import javafx.collections.FXCollections;
@@ -132,29 +133,46 @@ public class HelloController implements Initializable {
 
     @FXML
     private void handleAddStudent() {
-        try {
-            int id = Integer.parseInt(idField.getText());
-            String name = nameField.getText();
-            String course = courseField.getText();
-            String module = moduleField.getText();
-            int marks = Integer.parseInt(marksField.getText());
+    try {
+        int id = Integer.parseInt(idField.getText());
+        String name = nameField.getText();
+        String course = courseField.getText();
+        String module = moduleField.getText();
+        int marks = Integer.parseInt(marksField.getText());
+        Student newStudent = new Student(id, name, course, module, marks);
+        if(studentRegister.exists(id)){ // assuming you have such method to check existence of student by ID
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirmation Dialog");
+            alert.setHeaderText("A student with this ID already exists");
+            alert.setContentText("Are you sure you want to overwrite the existing student's data?");
 
-            Student student = new Student(id, name, course, module, marks);
-            studentRegister.addStudent(student);
-            listView.getItems().add(student.toString1());
-
-            // Save the updated student register to file
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == ButtonType.OK){
+                studentRegister.removeStudent(id);
+                handleClearDisplay();
+                studentRegister.addStudent(newStudent);
+                listView.getItems().add(newStudent.toString1());
+                studentRegister.saveFile(filePath);
+                clearInputs();
+                showAlert(Alert.AlertType.INFORMATION, "Success", null, "The student has been successfully added.");
+            } else {
+                showAlert(Alert.AlertType.INFORMATION, "Information", null, "The existing student data was not changed.");
+            }
+        } else {
+            studentRegister.addStudent(newStudent);
+            listView.getItems().add(newStudent.toString1());
             studentRegister.saveFile(filePath);
             clearInputs();
-            showAlert(Alert.AlertType.ERROR, "Success", null, "The student has been successfully added.");
-        } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.ERROR, "Invalid Input", null, "ID and Marks must be numbers..");
-        } catch (IllegalArgumentException | IllegalStateException e) {
-            showAlert(Alert.AlertType.ERROR, "Invalid Input", null, e.getMessage());
-        } catch (IOException e) {
-            showAlert(Alert.AlertType.ERROR, "Error Saving File", null, "An error occurred while saving the student register to file.");
+            showAlert(Alert.AlertType.INFORMATION, "Success", null, "The student has been successfully added.");
         }
+    } catch (NumberFormatException e) {
+        showAlert(Alert.AlertType.ERROR, "Invalid Input", null, "ID and Marks must be numbers..");
+    } catch (IllegalArgumentException e) {
+        showAlert(Alert.AlertType.ERROR, "Invalid Input", null, e.getMessage());
+    } catch (IOException e) {
+        showAlert(Alert.AlertType.ERROR, "Error Saving File", null, "An error occurred while saving the student register to file.");
     }
+}
 
     @FXML
     public void handleRemoveStudent(){
@@ -168,7 +186,7 @@ public class HelloController implements Initializable {
                 // Save the updated student register to file
                 studentRegister.saveFile(filePath);
                 clearInputs();
-                showAlert(Alert.AlertType.ERROR, "Success", null, "The student has been successfully removed.");
+                showAlert(Alert.AlertType.INFORMATION, "Success", null, "The student has been successfully removed.");
             } else {
                 showAlert(Alert.AlertType.ERROR, "Invalid Input", null, "Student not found..");
             }
@@ -202,7 +220,7 @@ public class HelloController implements Initializable {
             } else {
                 listView.getItems().clear();
                 matchingStudents.forEach(student -> listView.getItems().add(student.toString1()));
-                showAlert(Alert.AlertType.ERROR, "Students found.", null, "These are the matching students.");
+                showAlert(Alert.AlertType.INFORMATION, "Students found.", null, "These are the matching students.");
             }
         } catch (IllegalArgumentException ex) {
             showAlert(Alert.AlertType.ERROR, "Search Criteria Required", null, "Please provide at least one search criteria.");
@@ -211,10 +229,11 @@ public class HelloController implements Initializable {
 
     @FXML
     private void handleAverageMarks() {
-        // Calculate the average mark
         double averageMark = studentRegister.calculateAverageMark();
-        // Display the average in a popup box
-        showAlert(Alert.AlertType.INFORMATION, "Average Mark", null, "The average mark is: " + averageMark);
+        showAlert(Alert.AlertType.INFORMATION,
+                "Average Mark",
+                null,
+                "The average mark is: " + averageMark);
     }
 
     @FXML
@@ -243,5 +262,36 @@ public class HelloController implements Initializable {
         List<Student> sortedStudents = studentRegister.getSortedByNameDesc();
         listView.getItems().clear();
         listView.getItems().addAll(sortedStudents.stream().map(Student::toString1).collect(Collectors.toList()));
+    }
+
+    @FXML
+    public void handleDisplayPassingStudents() {
+        List<Student> passingStudents = studentRegister.getStudentsWhoPassed();
+        listView.getItems().clear();
+        listView.getItems().addAll(passingStudents.stream().map(Student::toString1).collect(Collectors.toList()));
+    }
+
+    @FXML
+    public void handleDisplayFailingStudents() {
+        List<Student> failingStudents = studentRegister.getStudentsWhoFailed();
+        listView.getItems().clear();
+        listView.getItems().addAll(failingStudents.stream().map(Student::toString1).collect(Collectors.toList()));
+    }
+
+    @FXML
+    private void handleBenchmarkButton() {
+        listView.getItems().clear();
+        listView.getItems().add("Stream Vs Parallel Stream Benchmark");
+
+        // The different sizes of student data
+        int[] sizes = {1000, 10000, 100000, 1000000, 10000000};
+
+        for (int size : sizes) {
+            long streamTime = StudentBenchmarkTest.testStreamPerformance(size);
+            listView.getItems().add("Stream performance for " + size + " students: " + streamTime + "ms");
+
+            long parallelStreamTime = StudentBenchmarkTest.testParallelStreamPerformance(size);
+            listView.getItems().add("Parallel stream performance for " + size + " students: " + parallelStreamTime + "ms");
+        }
     }
 }

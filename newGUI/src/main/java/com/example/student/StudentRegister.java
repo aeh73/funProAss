@@ -14,8 +14,6 @@ import java.util.stream.Stream;
 public class StudentRegister {
 
     private final ConcurrentHashMap<Integer, Student> register = new ConcurrentHashMap<>();
-    private static final String FILENAME = "student_register.txt";
-    private static StudentRegisterFileHandler fileHandler;
 
     /*constructor to be used for file I/O*/
     public StudentRegister() {
@@ -48,26 +46,37 @@ public class StudentRegister {
                         && s.getCourse() != null && !s.getCourse().isEmpty()
                         && s.getModule() != null && !s.getModule().isEmpty()
                         && s.getMarks() >= 0 && s.getMarks() <= 100)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid student data.."));
-        register.entrySet()
-                .stream()
-                .filter(entry -> entry.getKey() == student.getId())
-                .findAny()
-                .ifPresent(entry -> {
-                    throw new IllegalStateException("Student ID already in use..");
-                });
-        register.put(student.getId(), student);
-        // saveFile();
+                .ifPresent(s -> register.put(s.getId(), s));
     }
+//    public void addStudent(Student student) {
+//        Optional.ofNullable(student)
+//                .filter(s -> s.getId() > 0
+//                        && s.getName() != null && !s.getName().isEmpty()
+//                        && s.getCourse() != null && !s.getCourse().isEmpty()
+//                        && s.getModule() != null && !s.getModule().isEmpty()
+//                        && s.getMarks() >= 0 && s.getMarks() <= 100)
+//                .orElseThrow(() -> new IllegalArgumentException("Invalid student data.."));
+//        register.entrySet()
+//                .stream()
+//                .filter(entry -> entry.getKey() == student.getId())
+//                .findAny()
+//                .ifPresent(entry -> {
+//                    throw new IllegalStateException("Student ID already in use..");
+//                });
+//        register.put(student.getId(), student);
+//        // saveFile();
+//    }
+    public boolean exists(int id) {
+        return register.containsKey(id);
+    }
+
 
 
     public Student removeStudent(int id) {
         Optional<Student> student = Optional.ofNullable(register.get(id));
         student.orElseThrow(() -> new IllegalArgumentException("Student not found.."));
         register.remove(id);
-        // saveFile();
         return student.get();
-
     }
 
     public List<String> getAllStudents() {
@@ -124,7 +133,8 @@ public class StudentRegister {
         return s -> marksText.isEmpty() || Integer.toString(s.getMarks()).equals(marksText);
     }
 
-    public Predicate<Student> getCombinedPredicate(String idText, String nameText, String courseText, String moduleText, String marksText) {
+    public Predicate<Student> getCombinedPredicate(String idText, String nameText, String courseText
+                                                    , String moduleText, String marksText) {
         List<Predicate<Student>> predicates = new ArrayList<>();
         predicates.add(getIdPredicate(idText));
         predicates.add(getNamePredicate(nameText));
@@ -141,5 +151,16 @@ public class StudentRegister {
                 .orElse(0.0); // return 0.0 if there are no students
     }
 
+    public List<Student> getStudentsWhoPassed() {
+        return register.values().stream()
+                .filter(student -> student.getMarks() >= 40)
+                .collect(Collectors.toList());
+    }
+
+    public List<Student> getStudentsWhoFailed() {
+        return register.values().stream()
+                .filter(student -> student.getMarks() < 40)
+                .collect(Collectors.toList());
+    }
 
 }
